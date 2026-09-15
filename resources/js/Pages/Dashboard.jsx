@@ -7,6 +7,10 @@ import {
     CalendarDays,
     Inbox,
     GraduationCap,
+    LayoutDashboard,
+    BookOpen,
+    Library,
+    Users,
 } from "lucide-react";
 
 function getUcapan(jam) {
@@ -25,24 +29,30 @@ function formatTanggalMasehi(date) {
     });
 }
 
-function formatTanggalHijriah(date) {
-    try {
-        return new Intl.DateTimeFormat("id-ID-u-ca-islamic", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        }).format(date);
-    } catch (e) {
-        return "";
-    }
-}
-
 function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
     const [sekarang, setSekarang] = useState(new Date());
+    const [hijri, setHijri] = useState("");
 
+    // Jam real-time
     useEffect(() => {
         const timer = setInterval(() => setSekarang(new Date()), 1000);
         return () => clearInterval(timer);
+    }, []);
+
+    // Tanggal Hijriah dari API Aladhan
+    useEffect(() => {
+        const now = new Date();
+        const today = `${String(now.getDate()).padStart(2, "0")}-${String(
+            now.getMonth() + 1,
+        ).padStart(2, "0")}-${now.getFullYear()}`;
+
+        fetch(`https://api.aladhan.com/v1/gToH?date=${today}`)
+            .then((res) => res.json())
+            .then((data) => {
+                const h = data?.data?.hijri;
+                if (h) setHijri(`${h.day} ${h.month.en} ${h.year} H`);
+            })
+            .catch(() => setHijri(""));
     }, []);
 
     const jam = sekarang.getHours();
@@ -52,37 +62,59 @@ function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
 
     const ucapan = getUcapan(jam);
     const tanggalMasehi = formatTanggalMasehi(sekarang);
-    const tanggalHijriah = formatTanggalHijriah(sekarang);
 
     return (
         <>
             {/* Header Ucapan & Waktu */}
-            <div className="relative overflow-hidden bg-gradient-to-r from-teal-700 to-teal-500 rounded-2xl p-6 mb-6 shadow-lg shadow-teal-600/20">
-                <GraduationCap
-                    className="absolute -bottom-4 -right-4 w-32 h-32 text-white/10 rotate-12 pointer-events-none"
-                    strokeWidth={1.5}
-                />
+            <div className="relative overflow-hidden bg-gradient-to-r from-teal-700 to-teal-500 rounded-2xl p-4 mb-4 shadow-lg shadow-teal-600/20">
+                {/* Dekorasi kolase ikon — sudut kanan bawah */}
+                <div className="absolute bottom-2 right-4 pointer-events-none">
+                    <div className="relative w-32 h-20">
+                        <GraduationCap
+                            className="absolute bottom-0 right-0 w-16 h-16 text-white/[0.10]"
+                            strokeWidth={1.2}
+                        />
+                        <BookOpen
+                            className="absolute bottom-8 right-14 w-7 h-7 text-white/[0.08] -rotate-12"
+                            strokeWidth={1.5}
+                        />
+                        <ClipboardList
+                            className="absolute bottom-10 right-0 w-6 h-6 text-white/[0.07] rotate-6"
+                            strokeWidth={1.5}
+                        />
+                        <Library
+                            className="absolute bottom-1 right-16 w-5 h-5 text-white/[0.06] rotate-12"
+                            strokeWidth={1.5}
+                        />
+                        <Users
+                            className="absolute bottom-14 right-10 w-5 h-5 text-white/[0.06] -rotate-6"
+                            strokeWidth={1.5}
+                        />
+                        <LayoutDashboard
+                            className="absolute bottom-0 right-24 w-4 h-4 text-white/[0.05] rotate-6"
+                            strokeWidth={1.5}
+                        />
+                    </div>
+                </div>
 
                 <div className="relative">
                     <p className="text-teal-50 text-sm font-medium">
                         {ucapan}, Orang Sukses
                     </p>
-                    <p className="text-3xl font-semibold text-white tabular-nums tracking-tight mt-2">
+                    <p className="text-3xl font-semibold text-white tabular-nums tracking-tight mt-1.5">
                         {waktuStr}
                     </p>
-                    <div className="mt-2 text-teal-50/90 text-sm leading-relaxed">
+                    <div className="mt-1.5 text-teal-50/90 text-sm leading-relaxed">
                         <p>{tanggalMasehi}</p>
-                        {tanggalHijriah && (
-                            <p className="text-teal-100/70">{tanggalHijriah}</p>
-                        )}
+                        {hijri && <p className="text-teal-100/70">{hijri}</p>}
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Jadwal Hari Ini */}
                 <section>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                         <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center">
                             <CalendarDays className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                         </div>
@@ -112,7 +144,7 @@ function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
 
                 {/* Tugas Minggu Ini */}
                 <section>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                         <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center">
                             <ClipboardList className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                         </div>
