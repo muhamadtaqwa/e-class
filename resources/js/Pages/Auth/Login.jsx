@@ -17,7 +17,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 flex items-center justify-center px-4">
+        <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 flex items-center justify-center px-6">
             <div className="absolute -top-24 -left-24 w-72 h-72 bg-teal-400/25 rounded-full blur-3xl" />
             <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl" />
             <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-emerald-400/10 rounded-full blur-3xl" />
@@ -32,7 +32,7 @@ export default function Login() {
                             E-Class
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                            Manajemen Kelas S2 PAI
+                            Sistem Informasi Kelas S2 PAI 1A
                         </p>
                     </div>
 
@@ -97,7 +97,7 @@ export default function Login() {
                 </div>
 
                 <p className="text-center text-xs text-teal-200/60 mt-6">
-                    E-Class · Kelas S2 PAI
+                    © {new Date().getFullYear()} E-Class | ilmuna.id
                 </p>
             </div>
         </div>

@@ -91,10 +91,7 @@ export default function Form({ mahasiswa, onClose }) {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                            No. WA{" "}
-                            <span className="text-slate-400 dark:text-slate-500">
-                                (opsional)
-                            </span>
+                            No. WhatsApp{" "}
                         </label>
                         <input
                             type="text"

@@ -14,7 +14,7 @@ function getInisial(nama) {
         .toUpperCase();
 }
 
-export default function Index({ mahasiswa }) {
+function Index({ mahasiswa }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
     const [copied, setCopied] = useState(null);
@@ -53,11 +53,13 @@ export default function Index({ mahasiswa }) {
         }
     };
 
+    const isEmpty = mahasiswa.length === 0;
+
     return (
-        <AppLayout>
+        <>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">
+                    <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
                         Data Mahasiswa
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -73,7 +75,7 @@ export default function Index({ mahasiswa }) {
                 </button>
             </div>
 
-            {mahasiswa.length === 0 ? (
+            {isEmpty ? (
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
                     <Users className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
                     <p className="text-slate-500 dark:text-slate-400 text-sm">
@@ -87,14 +89,14 @@ export default function Index({ mahasiswa }) {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
                     {mahasiswa.map((item) => (
                         <div
                             key={item.id}
-                            className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition"
+                            className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition"
                         >
-                            {/* Header: avatar + nama + aksi */}
-                            <div className="flex items-center gap-3 mb-4">
+                            {/* Header card */}
+                            <div className="flex items-center gap-3 mb-2">
                                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shrink-0 shadow-sm shadow-teal-600/20">
                                     <span className="text-white text-xs font-semibold">
                                         {getInisial(item.nama)}
@@ -125,67 +127,53 @@ export default function Index({ mahasiswa }) {
                                 </div>
                             </div>
 
-                            {/* Body: label-value */}
-                            <div className="space-y-2 text-sm border-t border-slate-100 dark:border-slate-700 pt-3">
-                                {/* NIM */}
-                                <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
-                                        NIM
-                                    </span>
-                                    <div className="flex items-center gap-1 min-w-0">
-                                        <span className="font-mono text-xs text-slate-700 dark:text-slate-300 truncate">
-                                            {item.nim}
+                            {/* Body */}
+                            <div className="space-y-1 border-t border-slate-100 dark:border-slate-700 pt-2">
+                                {[
+                                    {
+                                        label: "NIM",
+                                        value: item.nim,
+                                        copyKey: `nim-${item.id}`,
+                                    },
+                                    {
+                                        label: "WhatsApp",
+                                        value: item.no_wa,
+                                        copyKey: `wa-${item.id}`,
+                                    },
+                                ].map((row) => (
+                                    <div
+                                        key={row.label}
+                                        className="flex items-center justify-between gap-2"
+                                    >
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
+                                            {row.label}
                                         </span>
-                                        <button
-                                            onClick={() =>
-                                                handleCopy(
-                                                    item.nim,
-                                                    `nim-${item.id}`,
-                                                )
-                                            }
-                                            className="p-1 rounded text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 transition shrink-0"
-                                            aria-label="Copy NIM"
-                                            title="Copy NIM"
-                                        >
-                                            {copied === `nim-${item.id}` ? (
-                                                <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                                            ) : (
-                                                <Copy className="w-3.5 h-3.5" />
+                                        <div className="flex items-center gap-1 min-w-0">
+                                            <span className="text-xs text-slate-700 dark:text-slate-300 truncate">
+                                                {row.value || "-"}
+                                            </span>
+                                            {row.value && (
+                                                <button
+                                                    onClick={() =>
+                                                        handleCopy(
+                                                            row.value,
+                                                            row.copyKey,
+                                                        )
+                                                    }
+                                                    className="p-1 rounded text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 transition shrink-0"
+                                                    aria-label={`Copy ${row.label}`}
+                                                    title={`Copy ${row.label}`}
+                                                >
+                                                    {copied === row.copyKey ? (
+                                                        <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                                                    ) : (
+                                                        <Copy className="w-3.5 h-3.5" />
+                                                    )}
+                                                </button>
                                             )}
-                                        </button>
+                                        </div>
                                     </div>
-                                </div>
-
-                                {/* WA */}
-                                <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
-                                        WhatsApp
-                                    </span>
-                                    <div className="flex items-center gap-1 min-w-0">
-                                        <span className="text-xs text-slate-700 dark:text-slate-300 truncate">
-                                            {item.no_wa || "-"}
-                                        </span>
-                                        {item.no_wa && (
-                                            <button
-                                                onClick={() =>
-                                                    handleCopy(
-                                                        item.no_wa,
-                                                        `wa-${item.id}`,
-                                                    )
-                                                }
-                                                className="p-1 rounded text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 transition shrink-0"
-                                                aria-label="Copy WA"
-                                                title="Copy WA"
-                                            >
-                                                {copied === `wa-${item.id}` ? (
-                                                    <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                                                ) : (
-                                                    <Copy className="w-3.5 h-3.5" />
-                                                )}
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     ))}
@@ -193,6 +181,9 @@ export default function Index({ mahasiswa }) {
             )}
 
             {showForm && <Form mahasiswa={editData} onClose={closeForm} />}
-        </AppLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AppLayout>{page}</AppLayout>;
+export default Index;

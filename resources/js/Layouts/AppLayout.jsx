@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Sidebar from "../Components/Sidebar";
+import BottomNav from "../Components/BottomNav";
+import PageTransition from "../Components/PageTransition";
 import { Menu, GraduationCap, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "../Contexts/ThemeContext";
 
@@ -33,7 +35,6 @@ export default function AppLayout({ children }) {
                         </span>
                     </div>
 
-                    {/* Toggle tema (mobile) */}
                     <button
                         onClick={cycleTheme}
                         className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition"
@@ -43,7 +44,12 @@ export default function AppLayout({ children }) {
                     </button>
                 </header>
 
-                <main className="p-4 md:p-6">{children}</main>
+                {/* Konten dengan fade transition */}
+                <main className="p-4 pb-24 md:p-6">
+                    <PageTransition>{children}</PageTransition>
+                </main>
+
+                <BottomNav />
             </div>
         </div>
     );

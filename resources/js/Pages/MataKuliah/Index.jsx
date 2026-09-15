@@ -15,7 +15,7 @@ const urutanHari = {
     Minggu: 7,
 };
 
-export default function Index({ mataKuliah }) {
+function Index({ mataKuliah }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
 
@@ -56,16 +56,15 @@ export default function Index({ mataKuliah }) {
 
     const formatJam = (jam) => jam?.slice(0, 5) ?? "-";
 
-    // Pisah dosen berdasarkan " & " kalau ada 2 dosen
-    const pisahDosen = (dosen) => {
-        return dosen.split(" & ").map((d) => d.trim());
-    };
+    const pisahDosen = (dosen) => dosen.split(" & ").map((d) => d.trim());
+
+    const isEmpty = dataUrut.length === 0;
 
     return (
-        <AppLayout>
-            <div className="flex items-center justify-between mb-6">
+        <>
+            <div className="flex items-center justify-between mb-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">
+                    <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
                         Mata Kuliah
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -81,7 +80,7 @@ export default function Index({ mataKuliah }) {
                 </button>
             </div>
 
-            {dataUrut.length === 0 ? (
+            {isEmpty ? (
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
                     <BookOpen className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
                     <p className="text-slate-500 dark:text-slate-400 text-sm">
@@ -95,15 +94,18 @@ export default function Index({ mataKuliah }) {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                     {dataUrut.map((item) => (
                         <div
                             key={item.id}
-                            className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition"
+                            className="relative bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 pl-4 flex flex-col overflow-hidden hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition"
                         >
+                            {/* Garis aksen teal di kiri */}
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-400 to-teal-600" />
+
                             {/* Header */}
-                            <div className="flex items-start justify-between gap-2 mb-3">
-                                <h3 className="font-semibold text-slate-800 dark:text-slate-100 leading-snug">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                                <h3 className="text-sm font-semibold text-teal-700 dark:text-teal-400 leading-snug">
                                     {item.nama}
                                 </h3>
                                 <div className="flex items-center gap-1 shrink-0">
@@ -112,20 +114,20 @@ export default function Index({ mataKuliah }) {
                                         className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition"
                                         aria-label="Edit"
                                     >
-                                        <Pencil className="w-4 h-4" />
+                                        <Pencil className="w-3.5 h-3.5" />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(item)}
                                         className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 text-red-500 dark:text-red-400 transition"
                                         aria-label="Hapus"
                                     >
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Dosen (blok tersendiri) */}
-                            <div className="space-y-0.5 mb-3">
+                            {/* Dosen */}
+                            <div className="space-y-0.5 mb-2">
                                 {pisahDosen(item.dosen).map((d, i) => (
                                     <p
                                         key={i}
@@ -136,34 +138,28 @@ export default function Index({ mataKuliah }) {
                                 ))}
                             </div>
 
-                            {/* Info jadwal: label-value */}
-                            <div className="space-y-2 text-sm border-t border-slate-100 dark:border-slate-700 pt-3">
-                                <div className="flex items-start justify-between gap-3">
-                                    <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0 pt-0.5">
-                                        Hari
-                                    </span>
-                                    <span className="text-xs text-slate-700 dark:text-slate-300 text-right">
-                                        {item.hari}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-start justify-between gap-3">
-                                    <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0 pt-0.5">
-                                        Jam
-                                    </span>
-                                    <span className="text-xs text-slate-700 dark:text-slate-300 text-right font-mono">
-                                        {formatJam(item.jam)}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-start justify-between gap-3">
-                                    <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0 pt-0.5">
-                                        Tempat
-                                    </span>
-                                    <span className="text-xs text-slate-700 dark:text-slate-300 text-right">
-                                        {item.tempat}
-                                    </span>
-                                </div>
+                            {/* Info jadwal */}
+                            <div className="space-y-1 text-sm border-t border-slate-100 dark:border-slate-700 pt-2">
+                                {[
+                                    { label: "Hari", value: item.hari },
+                                    {
+                                        label: "Jam",
+                                        value: formatJam(item.jam),
+                                    },
+                                    { label: "Tempat", value: item.tempat },
+                                ].map((row) => (
+                                    <div
+                                        key={row.label}
+                                        className="flex items-center justify-between gap-3"
+                                    >
+                                        <span className="text-xs text-teal-600 dark:text-teal-400 shrink-0">
+                                            {row.label}
+                                        </span>
+                                        <span className="text-xs text-slate-700 dark:text-slate-300 text-right">
+                                            {row.value}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))}
@@ -171,6 +167,9 @@ export default function Index({ mataKuliah }) {
             )}
 
             {showForm && <Form mataKuliah={editData} onClose={closeForm} />}
-        </AppLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AppLayout>{page}</AppLayout>;
+export default Index;

@@ -25,30 +25,58 @@ const urutanHari = {
     Minggu: 7,
 };
 
-export default function Index({ mataKuliah }) {
+function hitungHariSisa(deadline) {
+    const d = new Date(deadline);
+    const sekarang = new Date();
+    return Math.ceil((d - sekarang) / (1000 * 60 * 60 * 24));
+}
+
+function formatTenggat(deadline) {
+    const d = new Date(deadline);
+    const tanggal = d.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
+    const jam = d.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+    return `${tanggal} | ${jam.replace(":", ".")}`;
+}
+
+function getBadge(deadline) {
+    const hari = hitungHariSisa(deadline);
+    if (hari <= 0)
+        return {
+            label: "Hari ini",
+            cls: "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300",
+        };
+    if (hari === 1)
+        return {
+            label: "Besok",
+            cls: "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300",
+        };
+    if (hari <= 3)
+        return {
+            label: `${hari} hari`,
+            cls: "bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400",
+        };
+    return {
+        label: `${hari} hari`,
+        cls: "bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-400",
+    };
+}
+
+function Index({ mataKuliah }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
     const [formMataKuliahId, setFormMataKuliahId] = useState(null);
     const [showLewat, setShowLewat] = useState({});
     const [statusTugas, setStatusTugas] = useState(null);
 
-    const sekarang = new Date();
-
-    const isLewat = (deadline) => new Date(deadline) < sekarang;
-
-    const formatDeadline = (deadline) => {
-        const d = new Date(deadline);
-        const tanggal = d.toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-        });
-        const jam = d.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-        return `${tanggal}, ${jam}`;
-    };
+    const isLewat = (deadline) => new Date(deadline) < new Date();
 
     const dataUrut = [...mataKuliah].sort((a, b) => {
         const selisihHari =
@@ -89,9 +117,9 @@ export default function Index({ mataKuliah }) {
     };
 
     return (
-        <AppLayout>
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">
+        <>
+            <div className="mb-4">
+                <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
                     Tugas
                 </h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -103,11 +131,11 @@ export default function Index({ mataKuliah }) {
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center">
                     <ClipboardList className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
                     <p className="text-slate-500 dark:text-slate-400 text-sm">
-                        Belum ada mata kuliah. Tambahkan mata kuliah dulu.
+                        Belum ada mata kuliah.
                     </p>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {dataUrut.map((mk) => {
                         const tugasAktif = (mk.tugas ?? []).filter(
                             (t) => !isLewat(t.deadline),
@@ -123,53 +151,41 @@ export default function Index({ mataKuliah }) {
                                 className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden"
                             >
                                 {/* Header MK */}
-                                <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/50">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <h2 className="font-semibold text-slate-800 dark:text-slate-100 leading-snug">
-                                                {mk.nama}
-                                            </h2>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                {mk.dosen} · {mk.hari},{" "}
-                                                {mk.jam?.slice(0, 5)}
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => openTambah(mk.id)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-teal-700 to-teal-500 hover:from-teal-800 hover:to-teal-600 text-white text-xs font-medium rounded-lg transition shadow-sm shrink-0"
-                                        >
-                                            <Plus className="w-3.5 h-3.5" />
-                                            Tugas
-                                        </button>
+                                <div className="flex items-center gap-2 px-4 py-2.5 bg-teal-50 dark:bg-teal-950/40 border-b border-teal-100 dark:border-teal-900">
+                                    <h2 className="flex-1 min-w-0 text-sm font-semibold text-teal-800 dark:text-teal-300 truncate">
+                                        {mk.nama}
+                                    </h2>
+
+                                    <div className="w-8 flex justify-center shrink-0">
+                                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300">
+                                            {tugasAktif.length}
+                                        </span>
                                     </div>
+
+                                    <button
+                                        onClick={() => openTambah(mk.id)}
+                                        className="flex items-center gap-1 px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-medium rounded-md transition shrink-0"
+                                    >
+                                        <Plus className="w-3 h-3" />
+                                        Tugas
+                                    </button>
                                 </div>
 
                                 {/* Daftar Tugas */}
-                                <div className="p-4">
+                                <div className="p-2">
                                     {tugasAktif.length === 0 &&
                                         tugasLewat.length === 0 && (
-                                            <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">
-                                                Belum ada tugas untuk mata
-                                                kuliah ini.
-                                            </p>
-                                        )}
-
-                                    {tugasAktif.length === 0 &&
-                                        tugasLewat.length > 0 && (
-                                            <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">
-                                                Tidak ada tugas aktif.
+                                            <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">
+                                                Belum ada tugas.
                                             </p>
                                         )}
 
                                     {tugasAktif.length > 0 && (
-                                        <div className="space-y-2">
+                                        <div className="space-y-1">
                                             {tugasAktif.map((tugas) => (
-                                                <TugasItem
+                                                <TugasRow
                                                     key={tugas.id}
                                                     tugas={tugas}
-                                                    formatDeadline={
-                                                        formatDeadline
-                                                    }
                                                     onEdit={openEdit}
                                                     onDelete={handleDelete}
                                                     onStatus={setStatusTugas}
@@ -179,17 +195,17 @@ export default function Index({ mataKuliah }) {
                                     )}
 
                                     {tugasLewat.length > 0 && (
-                                        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                                        <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                                             <button
                                                 onClick={() =>
                                                     toggleLewat(mk.id)
                                                 }
-                                                className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition"
+                                                className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition px-1"
                                             >
                                                 {bukaLewat ? (
-                                                    <EyeOff className="w-3.5 h-3.5" />
+                                                    <EyeOff className="w-3 h-3" />
                                                 ) : (
-                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <Eye className="w-3 h-3" />
                                                 )}
                                                 {bukaLewat
                                                     ? "Sembunyikan"
@@ -199,14 +215,11 @@ export default function Index({ mataKuliah }) {
                                             </button>
 
                                             {bukaLewat && (
-                                                <div className="space-y-2 mt-3">
+                                                <div className="space-y-1 mt-2">
                                                     {tugasLewat.map((tugas) => (
-                                                        <TugasItem
+                                                        <TugasRow
                                                             key={tugas.id}
                                                             tugas={tugas}
-                                                            formatDeadline={
-                                                                formatDeadline
-                                                            }
                                                             onEdit={openEdit}
                                                             onDelete={
                                                                 handleDelete
@@ -242,29 +255,25 @@ export default function Index({ mataKuliah }) {
                     onClose={() => setStatusTugas(null)}
                 />
             )}
-        </AppLayout>
+        </>
     );
 }
 
-function TugasItem({
-    tugas,
-    formatDeadline,
-    onEdit,
-    onDelete,
-    onStatus,
-    lewat,
-}) {
+function TugasRow({ tugas, onEdit, onDelete, onStatus, lewat }) {
+    const badge = getBadge(tugas.deadline);
+
     return (
         <div
-            className={`flex items-start gap-3 p-3 rounded-lg border ${
+            className={`px-2.5 py-2 rounded-lg transition ${
                 lewat
-                    ? "bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 opacity-60"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 transition"
+                    ? "bg-slate-50 dark:bg-slate-900/50 opacity-60"
+                    : "hover:bg-teal-50/60 dark:hover:bg-teal-950/30"
             }`}
         >
-            <div className="flex-1 min-w-0">
+            {/* Baris 1: judul + badge */}
+            <div className="flex items-center justify-between gap-2">
                 <h3
-                    className={`text-sm font-medium ${
+                    className={`flex-1 min-w-0 text-sm font-medium truncate ${
                         lewat
                             ? "text-slate-500 dark:text-slate-400"
                             : "text-slate-800 dark:text-slate-100"
@@ -272,46 +281,57 @@ function TugasItem({
                 >
                     {tugas.judul}
                 </h3>
-                {tugas.deskripsi && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        {tugas.deskripsi}
-                    </p>
+
+                {lewat ? (
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">
+                        LEWAT
+                    </span>
+                ) : (
+                    <span
+                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${badge.cls}`}
+                    >
+                        {badge.label}
+                    </span>
                 )}
-                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 dark:text-slate-400">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{formatDeadline(tugas.deadline)}</span>
-                    {lewat && (
-                        <span className="ml-1 px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-[10px] font-medium">
-                            LEWAT
-                        </span>
-                    )}
-                </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-                <button
-                    onClick={() => onStatus(tugas)}
-                    className="p-1.5 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-950 text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition"
-                    aria-label="Status mahasiswa"
-                    title="Status mahasiswa"
-                >
-                    <Users className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => onEdit(tugas)}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition"
-                    aria-label="Edit"
-                >
-                    <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                    onClick={() => onDelete(tugas)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 text-red-500 dark:text-red-400 transition"
-                    aria-label="Hapus"
-                >
-                    <Trash2 className="w-4 h-4" />
-                </button>
+            {/* Baris 2: tenggat + aksi */}
+            <div className="flex items-center justify-between gap-2 mt-0.5">
+                <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
+                    <Calendar className="w-3 h-3 shrink-0" />
+                    <span className="truncate">
+                        {formatTenggat(tugas.deadline)}
+                    </span>
+                </div>
+
+                <div className="flex items-center gap-0.5 shrink-0">
+                    <button
+                        onClick={() => onStatus(tugas)}
+                        className="p-1.5 rounded-md hover:bg-teal-100 dark:hover:bg-teal-900 text-slate-500 dark:text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 transition"
+                        aria-label="Status mahasiswa"
+                        title="Status mahasiswa"
+                    >
+                        <Users className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        onClick={() => onEdit(tugas)}
+                        className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition"
+                        aria-label="Edit"
+                    >
+                        <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        onClick={() => onDelete(tugas)}
+                        className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950 text-red-500 dark:text-red-400 transition"
+                        aria-label="Hapus"
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
+
+Index.layout = (page) => <AppLayout>{page}</AppLayout>;
+export default Index;

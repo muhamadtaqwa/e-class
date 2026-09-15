@@ -6,7 +6,7 @@ import ReferensiCard from "../../Components/ReferensiCard";
 import { Plus, Library, Search } from "lucide-react";
 import toast from "react-hot-toast";
 
-export default function Index({ referensi, mataKuliah, filters }) {
+function Index({ referensi, mataKuliah, filters }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
     const [search, setSearch] = useState(filters?.search ?? "");
@@ -67,10 +67,10 @@ export default function Index({ referensi, mataKuliah, filters }) {
         filters?.jenis || filters?.mata_kuliah_id || filters?.search;
 
     return (
-        <AppLayout>
-            <div className="flex items-center justify-between mb-6">
+        <>
+            <div className="flex items-center justify-between mb-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">
+                    <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
                         Referensi
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -88,7 +88,7 @@ export default function Index({ referensi, mataKuliah, filters }) {
             </div>
 
             {/* Filter & Search */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-4 space-y-3">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 mb-3 space-y-2">
                 <div className="relative">
                     <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
@@ -100,7 +100,7 @@ export default function Index({ referensi, mataKuliah, filters }) {
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                     <select
                         value={filters?.jenis ?? ""}
                         onChange={(e) => applyFilter({ jenis: e.target.value })}
@@ -148,7 +148,7 @@ export default function Index({ referensi, mataKuliah, filters }) {
                     </p>
                 </div>
             ) : (
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
                     {referensi.map((item) => (
                         <ReferensiCard
                             key={item.id}
@@ -167,6 +167,9 @@ export default function Index({ referensi, mataKuliah, filters }) {
                     onClose={closeForm}
                 />
             )}
-        </AppLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AppLayout>{page}</AppLayout>;
+export default Index;

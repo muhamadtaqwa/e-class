@@ -37,7 +37,7 @@ function formatTanggalHijriah(date) {
     }
 }
 
-export default function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
+function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
     const [sekarang, setSekarang] = useState(new Date());
 
     useEffect(() => {
@@ -55,10 +55,9 @@ export default function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
     const tanggalHijriah = formatTanggalHijriah(sekarang);
 
     return (
-        <AppLayout>
+        <>
             {/* Header Ucapan & Waktu */}
             <div className="relative overflow-hidden bg-gradient-to-r from-teal-700 to-teal-500 rounded-2xl p-6 mb-6 shadow-lg shadow-teal-600/20">
-                {/* Dekorasi ikon transparan */}
                 <GraduationCap
                     className="absolute -bottom-4 -right-4 w-32 h-32 text-white/10 rotate-12 pointer-events-none"
                     strokeWidth={1.5}
@@ -141,6 +140,9 @@ export default function Dashboard({ tugasMingguIni, jadwalHariIni, hariIni }) {
                     )}
                 </section>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Dashboard.layout = (page) => <AppLayout>{page}</AppLayout>;
+export default Dashboard;
