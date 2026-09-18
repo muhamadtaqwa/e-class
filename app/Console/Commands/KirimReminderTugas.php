@@ -25,16 +25,22 @@ class KirimReminderTugas extends Command
             return;
         }
 
-        $pesan = "⏰ *Reminder Tugas*\n\n";
-        $pesan .= "Deadline *besok* ({$besok->translatedFormat('l, d F Y')}):\n\n";
+        $pesan = "🔔 *PENGINGAT TUGAS — BESOK*\n\n";
+        $pesan .= "━━━━━━━━━━━━━━━━━━\n\n";
 
         foreach ($tugas as $t) {
-            $jam = \Carbon\Carbon::parse($t->deadline)->format('H:i');
-            $pesan .= "• *{$t->judul}*\n";
-            $pesan .= "  {$t->mataKuliah->nama} · {$jam}\n\n";
+            $deadline = \Carbon\Carbon::parse($t->deadline);
+            $hari = $deadline->translatedFormat('l');
+            $tanggal = $deadline->translatedFormat('d M');
+            $jam = $deadline->format('H:i');
+
+            $pesan .= "📚 *{$t->mataKuliah->nama}*\n";
+            $pesan .= "📝 {$t->judul}\n";
+            $pesan .= "⏰ {$hari}, {$tanggal} · {$jam}\n\n";
+            $pesan .= "━━━━━━━━━━━━━━━━━━\n\n";
         }
 
-        $pesan .= "Jangan lupa dikerjakan ya!";
+        $pesan .= "Jangan lupa dikerjakan! 💪";
 
         $fonnte->kirimKeGrup($pesan);
 
