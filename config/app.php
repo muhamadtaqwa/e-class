@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cron Token
+    |--------------------------------------------------------------------------
+    |
+    | Token untuk mengamankan endpoint /cron/reminder/{token} yang dipanggil
+    | dari luar (misal cron-job.org). Simpan di .env sebagai CRON_TOKEN.
+    |
+    */
+
+    'cron_token' => env('CRON_TOKEN'),
+
 ];

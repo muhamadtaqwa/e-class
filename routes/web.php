@@ -69,3 +69,21 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{referensi}', [ReferensiController::class, 'destroy'])->name('destroy');
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Cron — dijalankan dari luar (cron-job.org)
+|--------------------------------------------------------------------------
+| Akses: /cron/reminder/{token}
+| Token disimpan di .env sebagai CRON_TOKEN
+|--------------------------------------------------------------------------
+*/
+Route::get('/cron/reminder/{token}', function ($token) {
+    if (empty(config('app.cron_token')) || $token !== config('app.cron_token')) {
+        abort(403);
+    }
+
+    \Artisan::call('tugas:reminder');
+
+    return response('OK', 200);
+});
