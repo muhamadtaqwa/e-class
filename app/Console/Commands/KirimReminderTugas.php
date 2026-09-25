@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Mahasiswa;
 use App\Models\Tugas;
 use App\Services\FonnteService;
 use Illuminate\Console\Command;
@@ -15,7 +16,7 @@ class KirimReminderTugas extends Command
     {
         $besok = now()->addDay();
 
-        $tugas = Tugas::with('mataKuliah')
+        $tugas = Tugas::with(['mataKuliah', 'mahasiswa'])
             ->whereDate('deadline', $besok->toDateString())
             ->orderBy('deadline')
             ->get();
@@ -24,6 +25,8 @@ class KirimReminderTugas extends Command
             $this->info('Tidak ada tugas yang deadline-nya besok.');
             return;
         }
+
+        $totalMahasiswa = Mahasiswa::count();
 
         $pesan = "🔔 *PENGINGAT TUGAS — BESOK*\n\n";
         $pesan .= "━━━━━━━━━━━━━━━━━━\n\n";
@@ -36,8 +39,21 @@ class KirimReminderTugas extends Command
 
             $pesan .= "📚 *{$t->mataKuliah->nama}*\n";
             $pesan .= "📝 {$t->judul}\n";
-            $pesan .= "⏰ {$hari}, {$tanggal} · {$jam}\n\n";
-            $pesan .= "━━━━━━━━━━━━━━━━━━\n\n";
+            $pesan .= "⏰ {$hari}, {$tanggal} · {$jam}\n";
+
+            // Kalau tugas untuk sebagian mahasiswa (bukan semua), tampilkan nama
+            $jumlahPeserta = $t->mahasiswa->count();
+            if ($jumlahPeserta > 0 && $jumlahPeserta < $totalMahasiswa) {
+                $namaMhs = $t->mahasiswa->pluck('nama');
+                $tampil = $namaMhs->take(3)->implode(', ');
+                $sisa = $namaMhs->count() - 3;
+                if ($sisa > 0) {
+                    $tampil .= " +{$sisa} lainnya";
+                }
+                $pesan .= "👥 {$tampil}\n";
+            }
+
+            $pesan .= "\n━━━━━━━━━━━━━━━━━━\n\n";
         }
 
         $pesan .= "Jangan lupa dikerjakan! 💪";

@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LinkTugasController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\MataKuliahController;
 use App\Http\Controllers\ReferensiController;
 use App\Http\Controllers\TugasController;
-use App\Http\Controllers\TugasStatusController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,10 +55,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [TugasController::class, 'store'])->name('store');
         Route::put('/{tugas}', [TugasController::class, 'update'])->name('update');
         Route::delete('/{tugas}', [TugasController::class, 'destroy'])->name('destroy');
-
-        // Tugas Status
-        Route::get('/{tugas}/status', [TugasStatusController::class, 'index'])->name('status.index');
-        Route::post('/{tugas}/status', [TugasStatusController::class, 'toggle'])->name('status.toggle');
     });
 
     // Referensi
@@ -68,14 +64,19 @@ Route::middleware('auth')->group(function () {
         Route::put('/{referensi}', [ReferensiController::class, 'update'])->name('update');
         Route::delete('/{referensi}', [ReferensiController::class, 'destroy'])->name('destroy');
     });
+
+    // Link Tugas
+    Route::prefix('link-tugas')->name('link-tugas.')->group(function () {
+        Route::get('/', [LinkTugasController::class, 'index'])->name('index');
+        Route::post('/', [LinkTugasController::class, 'store'])->name('store');
+        Route::put('/{linkTugas}', [LinkTugasController::class, 'update'])->name('update');
+        Route::delete('/{linkTugas}', [LinkTugasController::class, 'destroy'])->name('destroy');
+    });
 });
 
 /*
 |--------------------------------------------------------------------------
 | Cron — dijalankan dari luar (cron-job.org)
-|--------------------------------------------------------------------------
-| Akses: /cron/reminder/{token}
-| Token disimpan di .env sebagai CRON_TOKEN
 |--------------------------------------------------------------------------
 */
 Route::get('/cron/reminder/{token}', function ($token) {

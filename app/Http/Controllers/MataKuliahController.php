@@ -11,7 +11,10 @@ class MataKuliahController extends Controller
     public function index()
     {
         return Inertia::render('MataKuliah/Index', [
-            'mataKuliah' => MataKuliah::orderBy('hari')->orderBy('jam')->get(),
+            'mataKuliah' => MataKuliah::with('linkTugas')
+                ->orderBy('hari')
+                ->orderBy('jam')
+                ->get(),
         ]);
     }
 

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { router } from "@inertiajs/react";
 import AppLayout from "../../Layouts/AppLayout";
 import Form from "./Form";
-import TugasStatusModal from "../../Components/TugasStatusModal";
 import {
     Plus,
     Pencil,
@@ -69,12 +68,11 @@ function getBadge(deadline) {
     };
 }
 
-function Index({ mataKuliah }) {
+function Index({ mataKuliah, mahasiswa }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
     const [formMataKuliahId, setFormMataKuliahId] = useState(null);
     const [showLewat, setShowLewat] = useState({});
-    const [statusTugas, setStatusTugas] = useState(null);
 
     const isLewat = (deadline) => new Date(deadline) < new Date();
 
@@ -188,7 +186,6 @@ function Index({ mataKuliah }) {
                                                     tugas={tugas}
                                                     onEdit={openEdit}
                                                     onDelete={handleDelete}
-                                                    onStatus={setStatusTugas}
                                                 />
                                             ))}
                                         </div>
@@ -224,9 +221,6 @@ function Index({ mataKuliah }) {
                                                             onDelete={
                                                                 handleDelete
                                                             }
-                                                            onStatus={
-                                                                setStatusTugas
-                                                            }
                                                             lewat
                                                         />
                                                     ))}
@@ -245,22 +239,21 @@ function Index({ mataKuliah }) {
                 <Form
                     tugas={editData}
                     mataKuliahId={formMataKuliahId}
+                    mahasiswaList={mahasiswa ?? []}
                     onClose={closeForm}
-                />
-            )}
-
-            {statusTugas && (
-                <TugasStatusModal
-                    tugas={statusTugas}
-                    onClose={() => setStatusTugas(null)}
                 />
             )}
         </>
     );
 }
 
-function TugasRow({ tugas, onEdit, onDelete, onStatus, lewat }) {
+function TugasRow({ tugas, onEdit, onDelete, lewat }) {
     const badge = getBadge(tugas.deadline);
+
+    // Daftar mahasiswa yang ditugaskan (ringkas: maks 3 nama + "+N")
+    const listMahasiswa = tugas.mahasiswa ?? [];
+    const tampilMhs = listMahasiswa.slice(0, 3);
+    const sisa = listMahasiswa.length - tampilMhs.length;
 
     return (
         <div
@@ -295,24 +288,25 @@ function TugasRow({ tugas, onEdit, onDelete, onStatus, lewat }) {
                 )}
             </div>
 
-            {/* Baris 2: tenggat + aksi */}
-            <div className="flex items-center justify-between gap-2 mt-0.5">
+            {/* Baris 2: tenggat */}
+            <div className="flex items-center gap-1 mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                <Calendar className="w-3 h-3 shrink-0" />
+                <span>{formatTenggat(tugas.deadline)}</span>
+            </div>
+
+            {/* Baris 3: mahasiswa + aksi */}
+            <div className="flex items-center justify-between gap-2 mt-1">
                 <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
-                    <Calendar className="w-3 h-3 shrink-0" />
+                    <Users className="w-3 h-3 shrink-0" />
                     <span className="truncate">
-                        {formatTenggat(tugas.deadline)}
+                        {listMahasiswa.length === 0
+                            ? "Belum ada mahasiswa"
+                            : tampilMhs.map((m) => m.nama).join(", ") +
+                              (sisa > 0 ? ` +${sisa} lainnya` : "")}
                     </span>
                 </div>
 
                 <div className="flex items-center gap-0.5 shrink-0">
-                    <button
-                        onClick={() => onStatus(tugas)}
-                        className="p-1.5 rounded-md hover:bg-teal-100 dark:hover:bg-teal-900 text-slate-500 dark:text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 transition"
-                        aria-label="Status mahasiswa"
-                        title="Status mahasiswa"
-                    >
-                        <Users className="w-3.5 h-3.5" />
-                    </button>
                     <button
                         onClick={() => onEdit(tugas)}
                         className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition"

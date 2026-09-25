@@ -2,7 +2,8 @@ import { useState } from "react";
 import { router } from "@inertiajs/react";
 import AppLayout from "../../Layouts/AppLayout";
 import Form from "./Form";
-import { Plus, Pencil, Trash2, BookOpen } from "lucide-react";
+import LinkTugasModal from "../../Components/LinkTugasModal";
+import { Plus, Pencil, Trash2, BookOpen, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
 
 const urutanHari = {
@@ -18,6 +19,9 @@ const urutanHari = {
 function Index({ mataKuliah }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [showLinkModal, setShowLinkModal] = useState(false);
+    const [editLink, setEditLink] = useState(null);
+    const [linkMataKuliahId, setLinkMataKuliahId] = useState(null);
 
     const dataUrut = [...mataKuliah].sort((a, b) => {
         const selisihHari =
@@ -60,6 +64,34 @@ function Index({ mataKuliah }) {
 
     const isEmpty = dataUrut.length === 0;
 
+    // Link Tugas
+    const openTambahLink = (mataKuliahId) => {
+        setEditLink(null);
+        setLinkMataKuliahId(mataKuliahId);
+        setShowLinkModal(true);
+    };
+
+    const openEditLink = (link) => {
+        setEditLink(link);
+        setLinkMataKuliahId(link.mata_kuliah_id);
+        setShowLinkModal(true);
+    };
+
+    const closeLinkModal = () => {
+        setShowLinkModal(false);
+        setEditLink(null);
+        setLinkMataKuliahId(null);
+    };
+
+    const handleDeleteLink = (link) => {
+        if (confirm(`Hapus link "${link.judul}"?`)) {
+            router.delete(`/link-tugas/${link.id}`, {
+                onSuccess: () => toast.success("Link berhasil dihapus"),
+                onError: () => toast.error("Gagal menghapus link"),
+            });
+        }
+    };
+
     return (
         <>
             <div className="flex items-center justify-between mb-4">
@@ -100,7 +132,7 @@ function Index({ mataKuliah }) {
                             key={item.id}
                             className="relative bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 pl-4 flex flex-col overflow-hidden hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition"
                         >
-                            {/* Garis aksen teal di kiri */}
+                            {/* Garis aksen teal */}
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-400 to-teal-600" />
 
                             {/* Header */}
@@ -161,12 +193,88 @@ function Index({ mataKuliah }) {
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Link Tugas */}
+                            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-xs font-medium text-teal-600 dark:text-teal-400">
+                                        Link Tugas
+                                    </span>
+                                    <button
+                                        onClick={() => openTambahLink(item.id)}
+                                        className="flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-medium text-white bg-gradient-to-r from-teal-700 to-teal-500 hover:from-teal-800 hover:to-teal-600 rounded-md transition shadow-sm"
+                                    >
+                                        <Plus className="w-2.5 h-2.5" />
+                                        Tambah
+                                    </button>
+                                </div>
+
+                                {(item.link_tugas ?? []).length === 0 ? (
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+                                        Belum ada link.
+                                    </p>
+                                ) : (
+                                    <div className="space-y-1">
+                                        {(item.link_tugas ?? []).map((lt) => (
+                                            <div
+                                                key={lt.id}
+                                                className="flex items-center gap-1.5"
+                                            >
+                                                {/* Judul */}
+                                                <span className="flex-1 min-w-0 text-[11px] text-slate-700 dark:text-slate-300 truncate">
+                                                    {lt.judul}
+                                                </span>
+
+                                                {/* Edit */}
+                                                <button
+                                                    onClick={() =>
+                                                        openEditLink(lt)
+                                                    }
+                                                    className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 transition shrink-0"
+                                                    aria-label="Edit link"
+                                                >
+                                                    <Pencil className="w-3 h-3" />
+                                                </button>
+
+                                                {/* Hapus */}
+                                                <button
+                                                    onClick={() =>
+                                                        handleDeleteLink(lt)
+                                                    }
+                                                    className="p-0.5 rounded hover:bg-red-50 dark:hover:bg-red-950 text-red-400 dark:text-red-500 transition shrink-0"
+                                                    aria-label="Hapus link"
+                                                >
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+
+                                                {/* Tombol Buka */}
+                                                <a
+                                                    href={lt.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-white bg-gradient-to-r from-teal-700 to-teal-500 hover:from-teal-800 hover:to-teal-600 rounded-md transition shadow-sm shrink-0"
+                                                >
+                                                    Link
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
             )}
 
             {showForm && <Form mataKuliah={editData} onClose={closeForm} />}
+
+            {showLinkModal && (
+                <LinkTugasModal
+                    link={editLink}
+                    mataKuliahId={linkMataKuliahId}
+                    onClose={closeLinkModal}
+                />
+            )}
         </>
     );
 }

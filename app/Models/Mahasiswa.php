@@ -14,8 +14,13 @@ class Mahasiswa extends Model
         'no_wa',
     ];
 
-    public function tugasStatus()
+    public function tugas()
     {
-        return $this->hasMany(TugasStatus::class);
+        return $this->belongsToMany(
+            Tugas::class,
+            'tugas_mahasiswa',
+            'mahasiswa_id',
+            'tugas_id'
+        );
     }
 }

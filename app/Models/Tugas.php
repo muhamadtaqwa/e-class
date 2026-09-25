@@ -27,8 +27,13 @@ class Tugas extends Model
         return $this->belongsTo(MataKuliah::class);
     }
 
-    public function status()
+    public function mahasiswa()
     {
-        return $this->hasMany(TugasStatus::class);
+        return $this->belongsToMany(
+            Mahasiswa::class,
+            'tugas_mahasiswa',
+            'tugas_id',
+            'mahasiswa_id'
+        );
     }
 }

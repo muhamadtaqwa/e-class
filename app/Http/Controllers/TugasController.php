@@ -12,9 +12,12 @@ class TugasController extends Controller
     public function index()
     {
         return Inertia::render('Tugas/Index', [
-            'mataKuliah' => MataKuliah::with(['tugas' => function ($q) {
-                $q->orderBy('deadline');
-            }])->get(),
+            'mataKuliah' => MataKuliah::with([
+                'tugas' => function ($q) {
+                    $q->with('mahasiswa')->orderBy('deadline');
+                },
+            ])->get(),
+            'mahasiswa' => \App\Models\Mahasiswa::orderBy('nama')->get(),
         ]);
     }
 
@@ -25,9 +28,18 @@ class TugasController extends Controller
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
             'deadline' => ['required', 'date'],
+            'mahasiswa_ids' => ['required', 'array', 'min:1'],
+            'mahasiswa_ids.*' => ['exists:mahasiswa,id'],
         ]);
 
-        Tugas::create($validated);
+        $tugas = Tugas::create([
+            'mata_kuliah_id' => $validated['mata_kuliah_id'],
+            'judul' => $validated['judul'],
+            'deskripsi' => $validated['deskripsi'] ?? null,
+            'deadline' => $validated['deadline'],
+        ]);
+
+        $tugas->mahasiswa()->sync($validated['mahasiswa_ids']);
 
         return redirect()->back();
     }
@@ -38,9 +50,17 @@ class TugasController extends Controller
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
             'deadline' => ['required', 'date'],
+            'mahasiswa_ids' => ['required', 'array', 'min:1'],
+            'mahasiswa_ids.*' => ['exists:mahasiswa,id'],
         ]);
 
-        $tugas->update($validated);
+        $tugas->update([
+            'judul' => $validated['judul'],
+            'deskripsi' => $validated['deskripsi'] ?? null,
+            'deadline' => $validated['deadline'],
+        ]);
+
+        $tugas->mahasiswa()->sync($validated['mahasiswa_ids']);
 
         return redirect()->back();
     }

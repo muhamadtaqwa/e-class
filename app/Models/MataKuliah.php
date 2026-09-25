@@ -25,4 +25,9 @@ class MataKuliah extends Model
     {
         return $this->hasMany(Referensi::class);
     }
+
+    public function linkTugas()
+    {
+        return $this->hasMany(LinkTugas::class);
+    }
 }
