@@ -2,7 +2,16 @@ import { useState } from "react";
 import { router } from "@inertiajs/react";
 import AppLayout from "../../Layouts/AppLayout";
 import Form from "./Form";
-import { Plus, Pencil, Trash2, Users, Copy, Check } from "lucide-react";
+import RekapAbsenModal from "../../Components/RekapAbsenModal";
+import {
+    Plus,
+    Pencil,
+    Trash2,
+    Users,
+    Copy,
+    Check,
+    CalendarX,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 function getInisial(nama) {
@@ -14,10 +23,15 @@ function getInisial(nama) {
         .toUpperCase();
 }
 
-function Index({ mahasiswa }) {
+function Index({ mahasiswa, mataKuliah = [] }) {
     const [showForm, setShowForm] = useState(false);
     const [editData, setEditData] = useState(null);
     const [copied, setCopied] = useState(null);
+    const [absenMahasiswa, setAbsenMahasiswa] = useState(null);
+
+    const activeAbsenMahasiswa = mahasiswa.find(
+        (m) => m.id === absenMahasiswa?.id,
+    );
 
     const openTambah = () => {
         setEditData(null);
@@ -55,6 +69,10 @@ function Index({ mahasiswa }) {
 
     const isEmpty = mahasiswa.length === 0;
 
+    const dataUrut = [...mahasiswa].sort((a, b) =>
+        (a.nim || "").localeCompare(b.nim || "", undefined, { numeric: true }),
+    );
+
     return (
         <>
             <div className="flex items-center justify-between mb-6">
@@ -90,7 +108,7 @@ function Index({ mahasiswa }) {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-                    {mahasiswa.map((item) => (
+                    {dataUrut.map((item) => (
                         <div
                             key={item.id}
                             className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition"
@@ -110,6 +128,14 @@ function Index({ mahasiswa }) {
                                 </div>
 
                                 <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                        onClick={() => setAbsenMahasiswa(item)}
+                                        className="p-1.5 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-950 text-teal-600 dark:text-teal-400 transition"
+                                        aria-label="Rekap Absen"
+                                        title="Rekap Absen"
+                                    >
+                                        <CalendarX className="w-3.5 h-3.5" />
+                                    </button>
                                     <button
                                         onClick={() => openEdit(item)}
                                         className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition"
@@ -175,12 +201,86 @@ function Index({ mahasiswa }) {
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Rekap Absen Mini-Bar */}
+                            {(() => {
+                                const list = item.ketidakhadiran ?? [];
+                                const totalAbsen = list.reduce(
+                                    (sum, k) => sum + (k.jumlah || 0),
+                                    0,
+                                );
+                                const matkulBatas = list.filter(
+                                    (k) => k.jumlah >= 4,
+                                );
+                                const matkulWaspada = list.filter(
+                                    (k) => k.jumlah === 3,
+                                );
+
+                                return (
+                                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-1 text-[11px]">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setAbsenMahasiswa(item)
+                                            }
+                                            className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition"
+                                        >
+                                            <CalendarX className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Rekap Absen</span>
+                                        </button>
+
+                                        {matkulBatas.length > 0 ? (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setAbsenMahasiswa(item)
+                                                }
+                                                className="px-2 py-0.5 rounded-md font-semibold bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 transition hover:scale-105"
+                                            >
+                                                {matkulBatas.length} MatKul Batas Habis!
+                                            </button>
+                                        ) : matkulWaspada.length > 0 ? (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setAbsenMahasiswa(item)
+                                                }
+                                                className="px-2 py-0.5 rounded-md font-semibold bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 transition hover:scale-105"
+                                            >
+                                                {matkulWaspada.length} MatKul Sisa 1x
+                                            </button>
+                                        ) : totalAbsen > 0 ? (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setAbsenMahasiswa(item)
+                                                }
+                                                className="px-2 py-0.5 rounded-md font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
+                                            >
+                                                Total Absen: {totalAbsen}x
+                                            </button>
+                                        ) : (
+                                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40">
+                                                Hadir Penuh
+                                            </span>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
                     ))}
                 </div>
             )}
 
             {showForm && <Form mahasiswa={editData} onClose={closeForm} />}
+
+            {activeAbsenMahasiswa && (
+                <RekapAbsenModal
+                    mahasiswa={activeAbsenMahasiswa}
+                    mataKuliah={mataKuliah}
+                    onClose={() => setAbsenMahasiswa(null)}
+                />
+            )}
         </>
     );
 }

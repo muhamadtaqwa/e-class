@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KetidakhadiranController;
 use App\Http\Controllers\LinkTugasController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\MataKuliahController;
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('destroy');
     });
 
+    // Ketidakhadiran
+    Route::post('/ketidakhadiran', [KetidakhadiranController::class, 'update'])->name('ketidakhadiran.update');
+
     // Mata Kuliah
     Route::prefix('mata-kuliah')->name('mata-kuliah.')->group(function () {
         Route::get('/', [MataKuliahController::class, 'index'])->name('index');
@@ -67,7 +71,6 @@ Route::middleware('auth')->group(function () {
 
     // Link Tugas
     Route::prefix('link-tugas')->name('link-tugas.')->group(function () {
-        Route::get('/', [LinkTugasController::class, 'index'])->name('index');
         Route::post('/', [LinkTugasController::class, 'store'])->name('store');
         Route::put('/{linkTugas}', [LinkTugasController::class, 'update'])->name('update');
         Route::delete('/{linkTugas}', [LinkTugasController::class, 'destroy'])->name('destroy');

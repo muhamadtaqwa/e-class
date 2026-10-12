@@ -23,4 +23,9 @@ class Mahasiswa extends Model
             'tugas_id'
         );
     }
+
+    public function ketidakhadiran()
+    {
+        return $this->hasMany(Ketidakhadiran::class);
+    }
 }

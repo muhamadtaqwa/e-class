@@ -30,4 +30,9 @@ class MataKuliah extends Model
     {
         return $this->hasMany(LinkTugas::class);
     }
+
+    public function ketidakhadiran()
+    {
+        return $this->hasMany(Ketidakhadiran::class);
+    }
 }

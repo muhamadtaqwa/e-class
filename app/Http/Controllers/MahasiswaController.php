@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mahasiswa;
+use App\Models\MataKuliah;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,7 +12,8 @@ class MahasiswaController extends Controller
     public function index()
     {
         return Inertia::render('Mahasiswa/Index', [
-            'mahasiswa' => Mahasiswa::orderBy('nama')->get(),
+            'mahasiswa' => Mahasiswa::with('ketidakhadiran')->orderBy('nim')->get(),
+            'mataKuliah' => MataKuliah::orderBy('nama')->get(),
         ]);
     }
 

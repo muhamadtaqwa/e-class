@@ -3,21 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\LinkTugas;
-use App\Models\MataKuliah;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class LinkTugasController extends Controller
 {
-    public function index()
-    {
-        return Inertia::render('LinkTugas/Index', [
-            'mataKuliah' => MataKuliah::with('linkTugas')
-                ->orderBy('nama')
-                ->get(),
-        ]);
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
