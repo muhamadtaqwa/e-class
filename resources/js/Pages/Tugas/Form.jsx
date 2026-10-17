@@ -2,14 +2,6 @@ import { useForm } from "@inertiajs/react";
 import { X, Check } from "lucide-react";
 import toast from "react-hot-toast";
 
-function formatInputDatetime(dateStr) {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "";
-    const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 export default function Form({ tugas, mataKuliahId, mahasiswaList, onClose }) {
     const isEdit = !!tugas;
 
@@ -17,7 +9,7 @@ export default function Form({ tugas, mataKuliahId, mahasiswaList, onClose }) {
         mata_kuliah_id: mataKuliahId ?? "",
         judul: tugas?.judul ?? "",
         deskripsi: tugas?.deskripsi ?? "",
-        deadline: formatInputDatetime(tugas?.deadline),
+        deadline: tugas?.deadline ? tugas.deadline.slice(0, 10) : "",
         mahasiswa_ids: tugas?.mahasiswa?.map((m) => m.id) ?? [],
     });
 
@@ -204,7 +196,7 @@ export default function Form({ tugas, mataKuliahId, mahasiswaList, onClose }) {
                             Deadline
                         </label>
                         <input
-                            type="datetime-local"
+                            type="date"
                             value={data.deadline}
                             onChange={(e) =>
                                 setData("deadline", e.target.value)

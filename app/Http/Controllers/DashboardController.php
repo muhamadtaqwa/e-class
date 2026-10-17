@@ -10,13 +10,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $sekarang = now();
-        $akhirMinggu = now()->addDays(7);
+        $hariIniTanggal = now()->toDateString();
+        $akhirMinggu = now()->addDays(7)->toDateString();
 
-        // Tugas minggu ini (deadline antara sekarang s/d 7 hari ke depan)
+        // Tugas minggu ini (deadline antara hari ini s/d 7 hari ke depan)
         $tugasMingguIni = Tugas::with('mataKuliah')
-            ->where('deadline', '>=', $sekarang)
-            ->where('deadline', '<=', $akhirMinggu)
+            ->whereDate('deadline', '>=', $hariIniTanggal)
+            ->whereDate('deadline', '<=', $akhirMinggu)
             ->orderBy('deadline')
             ->get();
 

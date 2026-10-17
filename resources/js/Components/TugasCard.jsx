@@ -1,22 +1,36 @@
 import { Calendar, BookOpen } from "lucide-react";
 
+function parseDateOnly(dateStr) {
+    if (!dateStr) return new Date();
+    const parts = String(dateStr).slice(0, 10).split("-");
+    if (parts.length === 3) {
+        return new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2]),
+        );
+    }
+    return new Date(dateStr);
+}
+
 export default function TugasCard({ tugas }) {
-    const deadline = new Date(tugas.deadline);
-    const sekarang = new Date();
-    const selisihHari = Math.ceil(
-        (deadline - sekarang) / (1000 * 60 * 60 * 24),
+    const targetDate = parseDateOnly(tugas.deadline);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const selisihHari = Math.round(
+        (targetDate - today) / (1000 * 60 * 60 * 24),
     );
 
     const formatDeadline = () => {
-        const tanggal = deadline.toLocaleDateString("id-ID", {
+        return targetDate.toLocaleDateString("id-ID", {
+            weekday: "long",
             day: "numeric",
             month: "short",
+            year: "numeric",
         });
-        const jam = deadline.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-        return `${tanggal}, ${jam}`;
     };
 
     // Warna berdasarkan kedekatan deadline
@@ -37,7 +51,8 @@ export default function TugasCard({ tugas }) {
     };
 
     const getLabel = () => {
-        if (selisihHari <= 0) return "Hari ini";
+        if (selisihHari < 0) return "Lewat";
+        if (selisihHari === 0) return "Hari ini";
         if (selisihHari === 1) return "Besok";
         return `${selisihHari} hari lagi`;
     };

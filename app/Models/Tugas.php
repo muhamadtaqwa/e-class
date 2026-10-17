@@ -18,7 +18,7 @@ class Tugas extends Model
     protected function casts(): array
     {
         return [
-            'deadline' => 'datetime',
+            'deadline' => 'date:Y-m-d',
         ];
     }
 

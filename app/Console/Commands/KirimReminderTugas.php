@@ -35,11 +35,10 @@ class KirimReminderTugas extends Command
             $deadline = \Carbon\Carbon::parse($t->deadline);
             $hari = $deadline->translatedFormat('l');
             $tanggal = $deadline->translatedFormat('d M');
-            $jam = $deadline->format('H:i');
 
             $pesan .= "📚 *{$t->mataKuliah->nama}*\n";
             $pesan .= "📝 {$t->judul}\n";
-            $pesan .= "⏰ {$hari}, {$tanggal} · {$jam}\n";
+            $pesan .= "⏰ {$hari}, {$tanggal}\n";
 
             // Kalau tugas untuk sebagian mahasiswa (bukan semua), tampilkan nama
             $jumlahPeserta = $t->mahasiswa->count();

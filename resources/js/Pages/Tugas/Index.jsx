@@ -24,25 +24,37 @@ const urutanHari = {
     Minggu: 7,
 };
 
+function parseDateOnly(dateStr) {
+    if (!dateStr) return new Date();
+    const parts = String(dateStr).slice(0, 10).split("-");
+    if (parts.length === 3) {
+        return new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2]),
+        );
+    }
+    return new Date(dateStr);
+}
+
 function hitungHariSisa(deadline) {
-    const d = new Date(deadline);
-    const sekarang = new Date();
-    return Math.ceil((d - sekarang) / (1000 * 60 * 60 * 24));
+    const target = parseDateOnly(deadline);
+    target.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return Math.round((target - today) / (1000 * 60 * 60 * 24));
 }
 
 function formatTenggat(deadline) {
-    const d = new Date(deadline);
-    const tanggal = d.toLocaleDateString("id-ID", {
+    const d = parseDateOnly(deadline);
+    return d.toLocaleDateString("id-ID", {
+        weekday: "long",
         day: "numeric",
         month: "short",
         year: "numeric",
     });
-    const jam = d.toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    });
-    return `${tanggal} | ${jam.replace(":", ".")}`;
 }
 
 function getBadge(deadline) {
@@ -74,7 +86,7 @@ function Index({ mataKuliah, mahasiswa }) {
     const [formMataKuliahId, setFormMataKuliahId] = useState(null);
     const [showLewat, setShowLewat] = useState({});
 
-    const isLewat = (deadline) => new Date(deadline) < new Date();
+    const isLewat = (deadline) => hitungHariSisa(deadline) < 0;
 
     const dataUrut = [...mataKuliah].sort((a, b) => {
         const selisihHari =
